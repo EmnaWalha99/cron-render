@@ -2,33 +2,51 @@ import time
 import random
 import datetime
 
-
- #generate times 
+# generate times
 def generate_times():
     times = []
-    for i in range(10):
-        hour= random.randint(0,23)
-        minute = random.randint(0,59)
-        times.append((hour,minute))
-        
+    for _ in range(100):
+        hour = random.randint(18, 20)
+        minute = random.randint(0, 59)
+        times.append((hour, minute))
+
     return sorted(times)
 
-#sleep
-def wait_until(hour,minute):
+
+# sleep until target time
+def wait_until(hour, minute):
+    target = datetime.datetime.now().replace(
+        hour=hour,
+        minute=minute,
+        second=0,
+        microsecond=0
+    )
+
+    # if time already passed today → skip
+    if datetime.datetime.now() > target:
+        return
+
     while True:
         now = datetime.datetime.now()
-        if now.hour==hour and now.minute==minute:
+
+        if now >= target:
             return
-        time.sleep()
-        
+
+        time.sleep(5)
+
+
 def loop():
     while True:
-        schedule = generate_times
-        now = datetime.datetime.now()
-        for h,m in schedule:
-            wait_until(h,m)
-            print(f"Running task at {h}:{m}")
-        time.sleep(60) #wait a minute before generating new schedule
-        
+        schedule = generate_times()
+
+        print("New schedule:", schedule)
+
+        for h, m in schedule:
+            wait_until(h, m)
+            print(f"Running task at {h:02d}:{m:02d}")
+
+        time.sleep(60)  # wait before regenerating
+
+
 if __name__ == "__main__":
     loop()
